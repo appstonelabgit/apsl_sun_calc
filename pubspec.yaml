@@ -7,8 +7,8 @@ version: 0.0.1
 homepage: https://github.com/appstonelabgit/apsl_sun_calc
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=2.17.6 <4.0.0"
+  flutter: ">=1.17.6"
 
 dependencies:
   flutter:
