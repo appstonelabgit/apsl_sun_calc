@@ -1,6 +1,6 @@
 name: apsl_sun_calc
 description: Calculate solar positions, sunrise, sunset, and twilight phases for Flutter apps.
-version: 0.0.2
+version: 0.0.4
 homepage: https://github.com/appstonelabgit/apsl_sun_calc
 
 environment:

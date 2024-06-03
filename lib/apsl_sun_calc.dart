@@ -3,92 +3,13 @@ library flutter_suncalc;
 import 'dart:math' as math;
 
 import 'src/constants.dart';
+import 'src/date_utils.dart';
+import 'src/position_utils.dart';
+import 'src/sun_utils.dart';
+import 'src/time_utils.dart';
 
 // Define the Julian epoch reference.
 final julianEpoch = DateTime.utc(-4713, 11, 24, 12, 0, 0);
-
-// Convert a standard DateTime object to a Julian date number.
-num toJulian(DateTime date) {
-  return date.difference(julianEpoch).inSeconds / Duration.secondsPerDay;
-}
-
-// Convert a Julian date number to a standard DateTime object.
-DateTime fromJulian(num j) {
-  return julianEpoch
-      .add(Duration(milliseconds: (j * Duration.millisecondsPerDay).floor()));
-}
-
-// Calculate the number of days since the J2000.0 epoch.
-num toDays(DateTime date) {
-  return toJulian(date) - j2000;
-}
-
-// Calculate right ascension of a celestial body given ecliptic longitude (l) and latitude (b).
-num rightAscension(num l, num b) {
-  return math.atan2(
-      math.sin(l) * math.cos(e) - math.tan(b) * math.sin(e), math.cos(l));
-}
-
-// Calculate declination of a celestial body given ecliptic longitude (l) and latitude (b).
-num declination(num l, num b) {
-  return math.asin(
-      math.sin(b) * math.cos(e) + math.cos(b) * math.sin(e) * math.sin(l));
-}
-
-// Calculate azimuth of a celestial body given hour angle (H), latitude (phi), and declination (dec).
-num azimuth(num H, num phi, num dec) {
-  return math.atan2(
-      math.sin(H), math.cos(H) * math.sin(phi) - math.tan(dec) * math.cos(phi));
-}
-
-// Calculate altitude of a celestial body given hour angle (H), latitude (phi), and declination (dec).
-num altitude(num H, num phi, num dec) {
-  return math.asin(math.sin(phi) * math.sin(dec) +
-      math.cos(phi) * math.cos(dec) * math.cos(H));
-}
-
-// Calculate sidereal time given days since J2000.0 (d) and longitude (lw).
-num siderealTime(num d, num lw) {
-  return rad * (280.16 + 360.9856235 * d) - lw;
-}
-
-// Calculate astro refraction given altitude (h).
-num astroRefraction(num h) {
-  if (h < 0) {
-    // the following formula works for positive altitudes only.
-    h = 0; // if h = -0.08901179 a div/0 would occur.
-  }
-  // formula 16.4 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
-  // 1.02 / tan(h + 10.26 / (h + 5.10)) h in degrees, result in arc minutes -> converted to rad:
-  return 0.0002967 / math.tan(h + 0.00312536 / (h + 0.08901179));
-}
-
-// general sun calculations
-num solarMeanAnomaly(num d) {
-  return rad * (357.5291 + 0.98560028 * d);
-}
-
-num equationOfCenter(num M) {
-  var firstFactor = 1.9148 * math.sin(M);
-  var secondFactor = 0.02 * math.sin(2 * M);
-  var thirdFactor = 0.0003 * math.sin(3 * M);
-
-  return rad * (firstFactor + secondFactor + thirdFactor);
-}
-
-num eclipticLongitude(num M) {
-  var C = equationOfCenter(M);
-  var P = rad * 102.9372; // perihelion of the Earth
-
-  return M + C + P + pi;
-}
-
-Map<String, num> sunCoords(num d) {
-  var M = solarMeanAnomaly(d);
-  var L = eclipticLongitude(M);
-
-  return {"dec": declination(L, 0), "ra": rightAscension(L, 0)};
-}
 
 // calculations for sun times
 var times = [
@@ -99,30 +20,6 @@ var times = [
   [-18, 'nightEnd', 'night'],
   [6, 'goldenHourEnd', 'goldenHour']
 ];
-
-num julianCycle(d, lw) {
-  return (d - j0 - lw / (2 * pi)).round();
-}
-
-num approxTransit(ht, lw, n) {
-  return j0 + (ht + lw) / (2 * pi) + n;
-}
-
-num solarTransitJ(ds, M, L) {
-  return j2000 + ds + 0.0053 * math.sin(M) - 0.0069 * math.sin(2 * L);
-}
-
-num hourAngle(h, phi, d) {
-  return math.acos((math.sin(h) - math.sin(phi) * math.sin(d)) /
-      (math.cos(phi) * math.cos(d)));
-}
-
-num getSetJ(h, lw, phi, dec, n, M, L) {
-  var w = hourAngle(h, phi, dec);
-  var a = approxTransit(w, lw, n);
-
-  return solarTransitJ(a, M, L);
-}
 
 DateTime hoursLater(DateTime date, num h) {
   var ms = h * 60 * 60 * 1000;
