@@ -15,8 +15,12 @@ num solarTransitJ(ds, M, L) {
 }
 
 num hourAngle(h, phi, d) {
-  return math.acos((math.sin(h) - math.sin(phi) * math.sin(d)) /
-      (math.cos(phi) * math.cos(d)));
+  num angle = (math.sin(h) - math.sin(phi) * math.sin(d)) /
+      (math.cos(phi) * math.cos(d));
+  if (angle < -1) angle = -1;
+  if (angle > 1) angle = 1;
+
+  return math.acos(angle);
 }
 
 num getSetJ(h, lw, phi, dec, n, M, L) {

@@ -1,9 +1,6 @@
 name: apsl_sun_calc
-description: A Flutter package for calculating the solar position and sunlight
-  phases, such as sunrise, sunset, golden hour, solar noon, and twilight times.
-  Perfect for applications that require solar angle data or scheduling around
-  sunlight hours.
-version: 0.0.1
+description: Calculate solar positions, sunrise, sunset, and twilight phases for Flutter apps.
+version: 0.0.2
 homepage: https://github.com/appstonelabgit/apsl_sun_calc
 
 environment:
@@ -15,7 +12,7 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
-  flutter_lints: ^2.0.0
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
 

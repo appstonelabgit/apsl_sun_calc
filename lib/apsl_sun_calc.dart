@@ -4,46 +4,55 @@ import 'dart:math' as math;
 
 import 'src/constants.dart';
 
+// Define the Julian epoch reference.
 final julianEpoch = DateTime.utc(-4713, 11, 24, 12, 0, 0);
 
+// Convert a standard DateTime object to a Julian date number.
 num toJulian(DateTime date) {
   return date.difference(julianEpoch).inSeconds / Duration.secondsPerDay;
 }
 
+// Convert a Julian date number to a standard DateTime object.
 DateTime fromJulian(num j) {
   return julianEpoch
       .add(Duration(milliseconds: (j * Duration.millisecondsPerDay).floor()));
 }
 
+// Calculate the number of days since the J2000.0 epoch.
 num toDays(DateTime date) {
   return toJulian(date) - j2000;
 }
 
-// general calculations for position
+// Calculate right ascension of a celestial body given ecliptic longitude (l) and latitude (b).
 num rightAscension(num l, num b) {
   return math.atan2(
       math.sin(l) * math.cos(e) - math.tan(b) * math.sin(e), math.cos(l));
 }
 
+// Calculate declination of a celestial body given ecliptic longitude (l) and latitude (b).
 num declination(num l, num b) {
   return math.asin(
       math.sin(b) * math.cos(e) + math.cos(b) * math.sin(e) * math.sin(l));
 }
 
+// Calculate azimuth of a celestial body given hour angle (H), latitude (phi), and declination (dec).
 num azimuth(num H, num phi, num dec) {
   return math.atan2(
       math.sin(H), math.cos(H) * math.sin(phi) - math.tan(dec) * math.cos(phi));
 }
 
+// Calculate altitude of a celestial body given hour angle (H), latitude (phi), and declination (dec).
 num altitude(num H, num phi, num dec) {
   return math.asin(math.sin(phi) * math.sin(dec) +
       math.cos(phi) * math.cos(dec) * math.cos(H));
 }
 
+// Calculate sidereal time given days since J2000.0 (d) and longitude (lw).
 num siderealTime(num d, num lw) {
   return rad * (280.16 + 360.9856235 * d) - lw;
 }
 
+// Calculate astro refraction given altitude (h).
 num astroRefraction(num h) {
   if (h < 0) {
     // the following formula works for positive altitudes only.
@@ -138,7 +147,7 @@ class SunCalc {
     times.add([angle, riseName, setName]);
   }
 
-  // calculates sun position for a given date and latitude/longitude
+  // Calculate the position of the sun at a given date and latitude/longitude.
   static Map<String, num> getPosition(DateTime date, num lat, num lng) {
     var lw = rad * -lng;
     var phi = rad * lat;
@@ -157,7 +166,9 @@ class SunCalc {
     return SunCalc.getPosition(date, lat, lng);
   }
 
-  static Map<String, DateTime> getTimes(DateTime date, num lat, num lng) {
+  // Calculate sunrise, sunset times and related solar phases for a given date and latitude/longitude.
+  static Future<Map<String, DateTime>> getTimes(
+      DateTime date, num lat, num lng) async {
     var lw = rad * -lng;
     var phi = rad * lat;
 
@@ -191,6 +202,7 @@ class SunCalc {
     return result;
   }
 
+  // Calculate the position of the moon at a given date and latitude/longitude.
   static Map<String, num> getMoonPosition(DateTime date, num lat, num lng) {
     var lw = rad * -lng;
     var phi = rad * lat;
@@ -216,6 +228,7 @@ class SunCalc {
     };
   }
 
+  // Calculate the illumination of the moon at a given date.
   static Map<String, num> getMoonIllumination(DateTime date) {
     var d = toDays(date);
     var s = sunCoords(d);
@@ -244,6 +257,7 @@ class SunCalc {
     };
   }
 
+  // Calculate moonrise and moonset times for a given date, latitude, and longitude.
   static Map getMoonTimes(DateTime date, num lat, num lng,
       [bool inUtc = true]) {
     var t = DateTime(date.year, date.month, date.day, 0, 0, 0);
